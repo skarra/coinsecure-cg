@@ -1,0 +1,13 @@
+{
+  "result": [
+    {
+      "time": 1436530948864,
+      "vol": 1000000,
+      "rate": 905000,
+      "orderID": "4gV0hDP8GOO56VNmGARd",
+      "fiat": 9050,
+      "tradeID": "tGvsbLQ3kgycgJ8pBwHrn",
+      "rateSpecified": 905000
+    }
+  ]
+}
