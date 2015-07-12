@@ -1,7 +1,7 @@
 ##
 ## Created : Fri Jul 10 19:10:06 IST 2015
 ##
-## Copyright (C) 2015 Sriram Karra.
+## Copyright (C) 2015 Sriram Karra <karra.etc@gmail.com>
 ## All Rights Reserved
 ##
 ## Licenced under Affero GPL (AGPL) version 3
