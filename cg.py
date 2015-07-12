@@ -7,10 +7,23 @@
 ## Licenced under Affero GPL (AGPL) version 3
 ##
 
-import demjson, sys
+import copy, logging, sys, time
+from   datetime import datetime
+import demjson
 
 _BUY  = 0
 _SELL = 1
+SATOSHIS   = 100000000                                 # Num Satoshis in one BTC
+SATOSHIS_F = 100000000.0
+
+def dt_from_ts_ms (ts_ms):
+    """
+    Convert a Unix timestamp since the Epoch, when it also has a millisecond
+    value built in
+    """
+
+    millisec = ts_ms % 1000
+    return datetime.fromtimestamp(ts_ms/1000).replace(microsecond=millisec * 1000)
 
 class TxnType(object):
     def __init__ (self, typ):
@@ -39,13 +52,145 @@ class Txn(object):
         ret += 'Trade Type : %s ; ' % self.buy_or_sell
         ret += 'Trade ID : %s ; ' % (self.trade_id)
         ret += 'Timestamp : %s ; ' % (self.time)
-        ret += 'BTC : %f ; ' % (self.vol / 100000000.0)
+        ret += 'BTC : %f ; ' % (self.vol / SATOSHIS_F)
         ret += 'Amt (INR) : %.2f ; ' % (self.fiat / 100.0)
         ret += 'Txn Rate : %s ; ' % (self.rate)
         ret += 'Order ID : %s ; ' % (self.order_id)
         ret += 'Order Rate : %s ; ' % (self.rate_spec)
 
         return ret
+
+class CGTxn(object):
+    """
+    Represent a single sell transaction, corresponding buy, and gain / loss
+    made """
+
+    def __init__ (self, **kwargs):
+        self.buy_id    = kwargs.get(u'buy_trade_id')
+        self.sell_id   = kwargs.get(u'sell_trade_id')
+        self.buy_time  = kwargs.get(u'buy_time')
+        self.sell_time = kwargs.get(u'sell_time')
+
+        # Note that this will either correspond to buy_vol or sell_vol but not
+        # necessarily both.
+        self.vol       = kwargs.get('vol', 0.0)
+
+        self.buy_rate  = kwargs.get('buy_rate', 0.0)
+        self.sell_rate = kwargs.get('sell_rate', 0.0)
+
+        self.gain = self.vol/SATOSHIS_F * (self.sell_rate - self.buy_rate)/100.0
+        self.stg  = self.apply_stg_rules()   # True if short term gain/loss
+
+    def apply_stg_rules (self):
+        """
+        Returns True if the current transaction is a Short Term Gain/Loss txn
+        and False otherwise.
+
+        As per current rules assuming a btc is held for more than 3
+        years then it is long term otherwise it will be considered short term.
+        """
+
+        sellt = dt_from_ts_ms(self.sell_time)
+        buyt  = dt_from_ts_ms(self.buy_time)
+        delta = sellt - buyt
+
+        return delta.days <= (365 * 3)
+
+    def __repr__ (self):
+        ret = '\n'
+        ret += 'Buy ID : %s ; ' % self.buy_id
+        ret += 'Sell ID : %s ; ' % (self.sell_id)
+        ret += 'Sell Time : %s ; ' % (self.sell_time)
+        ret += 'BTC : %f ; ' % (self.vol / 100000000.0)
+        ret += 'Gain (INR) : %.2f ; ' % (self.gain)
+        ret += 'STG : %s' % (self.stg)
+
+        return ret
+
+class CGError(Exception):
+    pass
+
+class Portfolio(object):
+    def __init__ (self, buys, sells):
+        self.buys = buys
+        self.sells = sells
+
+        ## FIXME: Ensure buys and sells are sorted by timestamp
+
+    def cg (self, start_date, end_date):
+        """Compute short term capital gain and long term capital gain for sell
+        txns made in the specified date range.
+
+        Will return a json in the following format:
+        {
+          'error' : < 'success' | 'failed' >,
+          'error_msg' : < error message if any >,
+          'balance'  : <balance at end_date in satoshis >,
+          'short_gain' : < short term capital gains in INR >,
+          'long_gain'  : < long term capital gains in INR >,
+          'txn_log' : [ cg_txns ]
+          }
+        """
+        self.temp_buys  = copy.deepcopy(self.buys)
+        self.temp_sells = copy.deepcopy(self.sells)
+
+        self.stg  = 0
+        self.ltg  = 0
+        self.cgtxns = []
+        err = False
+        errmsg = None
+
+        for sell in self.temp_sells:
+            try:
+                ret = self.match_one_sell(sell, start_date, end_date)
+                if not ret:
+                    break
+            except CGError, e:
+                err    = True
+                errmsg = str(e)
+
+        return {'error' : err,
+                'error_msg' : errmsg,
+                'short_gain' : self.stg,
+                'long_gain' : self.ltg,
+                'txn_log' : self.cgtxns
+                }
+
+    def match_one_sell (self, sell, start_date, end_date):
+        if sell.time > end_date:
+            logging.debug('Sell date exceeds end_date terminating.')
+            return False
+
+        for buy in self.temp_buys:
+            if buy.vol <= 0:
+                continue
+
+            if sell.time < buy.time:
+                raise CGError("You sold more than you bought!")
+
+            vol = buy.vol if buy.vol < sell.vol else sell.vol
+
+            cgtxn = CGTxn(buy_trade_id  = buy.trade_id,
+                          sell_trade_id = sell.trade_id, vol = vol,
+                          buy_time  = buy.time, sell_time = sell.time,
+                          buy_rate = buy.rate, sell_rate = sell.rate)
+
+            self.cgtxns.append(cgtxn)
+
+            if cgtxn.stg:
+                self.stg += cgtxn.gain
+            else:
+                self.ltg += cgtxn.gain
+
+            buy.vol  = vol
+            sell.vol -= vol
+
+            assert(sell.vol >= 0)
+
+            if sell.vol == 0:
+                return True
+
+        assert(False)                     # We should not run out of buys
 
 def main ():
     buys_fn = sys.argv[1]
@@ -66,8 +211,10 @@ def main ():
     for txn in sells_json['result']:
         sells.append(Txn(SELL, **txn))
 
-    print "Buys: ", buys
-    print "Sells: ", sells
+    p = Portfolio(buys, sells)
+    s = time.mktime(datetime(2015, 04, 01).timetuple())*1000
+    e = time.mktime(datetime(2016, 03, 31).timetuple())*1000
+    print p.cg(s, e)
 
 if __name__ == "__main__":
     main()
