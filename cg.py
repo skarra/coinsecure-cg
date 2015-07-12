@@ -98,8 +98,8 @@ class CGTxn(object):
 
     def __repr__ (self):
         ret = '\n'
-        ret += 'Buy ID : %s ; ' % self.buy_id
         ret += 'Sell ID : %s ; ' % (self.sell_id)
+        ret += 'Buy ID : %s ; ' % self.buy_id
         ret += 'Sell Time : %s ; ' % (self.sell_time)
         ret += 'BTC : %f ; ' % (self.vol / 100000000.0)
         ret += 'Gain (INR) : %.2f ; ' % (self.gain)
@@ -125,7 +125,8 @@ class Portfolio(object):
         {
           'error' : < 'success' | 'failed' >,
           'error_msg' : < error message if any >,
-          'balance'  : <balance at end_date in satoshis >,
+          'start_balance'  : <balance before start_date in satoshis >,
+          'end_balance'  : <balance after end_date in satoshis >,
           'short_gain' : < short term capital gains in INR >,
           'long_gain'  : < long term capital gains in INR >,
           'txn_log' : [ cg_txns ]
@@ -140,6 +141,10 @@ class Portfolio(object):
         err = False
         errmsg = None
 
+        bal = sum([b.vol for b in self.temp_buys])
+        self.start_balance = bal
+        self.end_balance   = bal
+
         for sell in self.temp_sells:
             try:
                 ret = self.match_one_sell(sell, start_date, end_date)
@@ -149,11 +154,17 @@ class Portfolio(object):
                 err    = True
                 errmsg = str(e)
 
+        ## A quick sanity check
+        bal = sum([b.vol for b in self.temp_buys])
+        assert(bal == self.end_balance)
+
         return {'error' : err,
                 'error_msg' : errmsg,
                 'short_gain' : self.stg,
                 'long_gain' : self.ltg,
-                'txn_log' : self.cgtxns
+                'txn_log' : self.cgtxns,
+                'start_balance' : self.start_balance,
+                'end_balance' : self.end_balance
                 }
 
     def match_one_sell (self, sell, start_date, end_date):
@@ -182,8 +193,13 @@ class Portfolio(object):
             else:
                 self.ltg += cgtxn.gain
 
-            buy.vol  = vol
+            buy.vol  -= vol
             sell.vol -= vol
+
+            if start_date > sell.time:
+                self.start_balance -= vol
+            if end_date > sell.time:
+                self.end_balance -= vol
 
             assert(sell.vol >= 0)
 
