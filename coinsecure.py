@@ -60,9 +60,10 @@ class TradesHandler(CSHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(demjson.encode(result))
 
-class MainPageHandler(webapp2.RequestHandler):
+class MainPageHandler(CSHandler):
     def get (self):
-        self.response.out.write("Hello World!")
+        template = JENV.get_template('index.html')
+        self.response.write(template.render())
 
 app = webapp2.WSGIApplication([('/', MainPageHandler),
                                ('/trades/(.*)', TradesHandler)

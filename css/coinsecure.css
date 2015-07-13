@@ -1,0 +1,93 @@
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+*  {
+    font-family: 'Roboto', sans-serif;
+}
+
+.navbar-inverse {
+    background-color: #4285f4;
+    border-color: #4285f4;
+    background-image: none;
+
+    webkit-transition: -webkit-transform .5s;
+    -moz-transition: -moz-transform .5s;
+    -ms-transition: -ms-transform .5s;
+    transition: transform .5s;
+    -webkit-transform: translateY(0);
+    -moz-transform: translateY(0);
+    -ms-transform: translateY(0);
+    transform: translateY(0);
+    -webkit-box-shadow: 0 2px 5px rgba(0,0,0,.26);
+    -moz-box-shadow: 0 2px 5px rgba(0,0,0,.26);
+    -ms-box-shadow: 0 2px 5px rgba(0,0,0,.26);
+    box-shadow: 0 2px 5px rgba(0,0,0,.26);
+}
+
+.navbar-inverse .navbar-brand {
+    color: #ffffff;
+    font-size: 20px;
+}
+
+.jumbotron h1 {
+    font-weight: 100;
+    line-height: 1;
+    font-size: 80px;
+}
+
+.jumbotron p {
+    font-size: 24px;
+    font-weight: 300;
+    line-height: 1.4;
+}
+
+.msa {
+    margin: 5;
+}
+
+.mma {
+    margin: 10;
+}
+
+.mla {
+    margin: 15;
+}
+
+.msv {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.msh {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.mmv {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.mmh {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.mlv {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.mlh {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.btn-cs-prim {
+    background-color: #4285f4;
+    color: white;
+    border-color: #4285f4;
+}

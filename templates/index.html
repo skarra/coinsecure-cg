@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block base_body %}
+
+<div class="container">
+    <div class="col-xs-4">
+      <input type="text" placeholder="Coinsecure API Key" 
+	     class="form-control"
+	     id="apikey" name="apikey" />
+    </div>
+
+    <div class="col-xs-2">
+      <input type="text" placeholder="Date Range" class="form-control"
+	     id="dates" name="dates" />
+    </div>
+
+    <div class="col-xs-2">
+      <button id="gh_save" type="submit" class="btn btn-cs-prim">
+      Compute </button>
+    </div>
+</div>
+
+{% endblock %}
