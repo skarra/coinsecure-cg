@@ -1,5 +1,5 @@
 ## 
-## Created       : Sat May 12 11:31:29 IST 2012
+## Created : Sun Jul 12 22:25:55 IST 2015
 ## 
 ## Copyright (C) 2015 Sriram Karra <karra.etc@gmail.com>
 ## All Rights Reserved
@@ -22,12 +22,7 @@ URL_BASE = "https://api.coinsecureis.cool/v0/"
 URL_BUYS = "auth/completeduserbids"
 URL_SELLS = "auth/completeduserasks"
 
-class TradesHandler(webapp2.RequestHandler):
-    """
-    Fetch the asks and bids using the specified API Key and return it as a
-    json
-    """
-
+class CSHandler(webapp2.RequestHandler):
     def fetch_trades (self, url, apikey, body):
         ret = {}
         try:
@@ -40,15 +35,25 @@ class TradesHandler(webapp2.RequestHandler):
 
         return ret
 
+    def fetch_buys (self, apikey):
+        body = demjson.encode({'apiKey' : apikey})
+        url = URL_BASE + URL_BUYS
+        return self.fetch_trades(url, apikey, body)
+
+    def fetch_sells (self, apikey):
+        body = demjson.encode({'apiKey' : apikey})
+        url = URL_BASE + URL_SELLS
+        return self.fetch_trades(url, apikey, body)
+
+class TradesHandler(CSHandler):
+    """
+    Fetch the asks and bids using the specified API Key and return it as a
+    json
+    """
 
     def get (self, apikey):
-        body = demjson.encode({'apiKey' : apikey})
-
-        url = URL_BASE + URL_BUYS
-        buys = self.fetch_trades(url, apikey, body)
-
-        url = URL_BASE + URL_SELLS
-        sells = self.fetch_trades(url, apikey, body)
+        buys  = self.fetch_buys(apikey)
+        sells = self.fetch_sells(apikey)
 
         result = { 'buys' : buys, 'sells': sells }
 
