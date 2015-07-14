@@ -7,16 +7,59 @@
 // Licensed under the GNU AGPL v3
 // 
 
+function addDatePickerHandler () {
+    $("#from").datepicker({
+	defaultDate: "+1w",
+	changeMonth: true,
+	changeYear: true,
+	numberOfMonths: 1,
+	dateFormat: "yy-mm-dd",
+	onClose: function(selectedDate) {
+	    $("#to").datepicker("option", "minDate", selectedDate);
+	}
+    });
+
+    $("#to").datepicker({
+	defaultDate: "+1w",
+	changeMonth: true,
+	changeYear: true,
+	numberOfMonths: 1,
+	dateFormat: "yy-mm-dd",
+	onClose: function(selectedDate) {
+	    $("#from").datepicker("option", "maxDate", selectedDate);
+	}
+    });
+}
+
+function saveFormFields () {
+    console.log('Saving form fields to localstorage...');
+    localStorage.setItem("cs_apikey", $("#apikey").val());
+    localStorage.setItem("cs_from", $("#from").val());
+    localStorage.setItem("cs_to", $("#to").val());
+    console.log('Saving form fields to localstorage...done.');
+}
+
+function loadFormFields () {
+    $("#apikey").val(localStorage.getItem("cs_apikey"));
+    $("#from").val(localStorage.getItem("cs_from"));
+    $("#to").val(localStorage.getItem("cs_to"));
+}
 
 // Register callbacks to handle specific events on our main UI.
 function addFormHandlers () {
     console.log('addFormHandlers');
 
+    addDatePickerHandler();
+
+    $("#compute").submit(function() {
+	saveFormFields();
+    });
 }
 
 function onLoad () {
     // Initialize the database if available
     addFormHandlers();
+    loadFormFields();
 }
 
 jQuery(onLoad);

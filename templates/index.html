@@ -3,6 +3,7 @@
 {% block base_body %}
 
 <div class="container">
+  <form id="compute">
     <div class="col-xs-4">
       <input type="text" placeholder="Coinsecure API Key" 
 	     class="form-control"
@@ -10,14 +11,21 @@
     </div>
 
     <div class="col-xs-2">
-      <input type="text" placeholder="Date Range" class="form-control"
-	     id="dates" name="dates" />
+      <input type="text" placeholder="Date From" class="form-control"
+	     id="from" name="from" />
     </div>
 
     <div class="col-xs-2">
-      <button id="gh_save" type="submit" class="btn btn-cs-prim">
-      Compute </button>
+      <input type="text" placeholder="Date to" class="form-control"
+	     id="to" name="to" />
     </div>
+
+    <div class="col-xs-2">
+      <button id="compute" type="submit" class="btn btn-cs-prim">
+	Compute
+      </button>
+    </div>
+    </form>
 </div>
 
 {% endblock %}
