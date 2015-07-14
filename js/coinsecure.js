@@ -56,6 +56,8 @@ function addFormHandlers () {
     });
 
     $("#cgtxns").dataTable();
+    $("#buys").dataTable();
+    $("#sells").dataTable();
 }
 
 function onLoad () {

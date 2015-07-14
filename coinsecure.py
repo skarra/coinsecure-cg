@@ -14,8 +14,7 @@ from google.appengine.api   import urlfetch
 from google.appengine.ext   import ndb
 
 import cg
-from cg import ts_ms_from_dt
-from cg import Portfolio
+from   cg import ts_ms_from_dt, Txn, Portfolio, BUY, SELL
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'templates')
 JENV = jinja2.Environment(
@@ -27,7 +26,7 @@ URL_BASE = "https://api.coinsecureis.cool/v0/"
 URL_BUYS = "auth/completeduserbids"
 URL_SELLS = "auth/completeduserasks"
 
-ONEDAY = 86400000
+ONEDAY = 86400000                         # Delta in Unix timestamps for 1 Day
 
 jsonpickle.set_preferred_backend('demjson')
 
@@ -47,12 +46,23 @@ class CSHandler(webapp2.RequestHandler):
     def fetch_buys (self, apikey):
         body = demjson.encode({'apiKey' : apikey})
         url = URL_BASE + URL_BUYS
-        return self.fetch_trades(url, apikey, body)
+        js = self.fetch_trades(url, apikey, body)
+        ret = []
+        for txn in js['result']:
+            ret.append(Txn(BUY, **txn))
+
+        return ret
 
     def fetch_sells (self, apikey):
         body = demjson.encode({'apiKey' : apikey})
         url = URL_BASE + URL_SELLS
-        return self.fetch_trades(url, apikey, body)
+        js = self.fetch_trades(url, apikey, body)
+
+        ret = []
+        for txn in js['result']:
+            ret.append(Txn(SELL, **txn))
+
+        return ret
 
 class TradesHandler(CSHandler):
     """
@@ -60,14 +70,22 @@ class TradesHandler(CSHandler):
     json
     """
 
-    def get (self, apikey):
-        buys  = self.fetch_buys(apikey)
-        sells = self.fetch_sells(apikey)
+    def get (self):
+        apikey = self.request.get('apikey', None)
+        if apikey in [None, ""]:
+            buys  = []
+            sells = []
+        else:
+            buys  = self.fetch_buys(apikey)
+            sells = self.fetch_sells(apikey)
 
-        result = { 'buys' : buys, 'sells': sells }
-
-        self.response.headers['Content-Type'] = 'application/json'
-        self.response.out.write(demjson.encode(result))
+        template = JENV.get_template('transactions.html')
+        self.response.write(template.render({
+            'buys'  : buys,
+            'sells' : sells,
+            'cgmod' : cg,
+            'error' : None
+            }))
 
 class MainPageHandler(CSHandler):
     def get (self):
@@ -92,10 +110,9 @@ class MainPageHandler(CSHandler):
                 }))
             return
 
-        buys_json  = self.fetch_buys(apikey)
-        sells_json = self.fetch_sells(apikey)
+        buys  = self.fetch_buys(apikey)
+        sells = self.fetch_sells(apikey)
 
-        buys, sells = cg.build_txns(buys_json, sells_json)
         p = Portfolio(buys, sells)
 
         dt = datetime.strptime(date_from, "%Y-%m-%d")
@@ -118,5 +135,5 @@ class MainPageHandler(CSHandler):
             self.response.write(template.render(result))
 
 app = webapp2.WSGIApplication([('/', MainPageHandler),
-                               ('/trades/(.*)', TradesHandler)
+                               ('/trades', TradesHandler)
                                ])
