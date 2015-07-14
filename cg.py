@@ -104,7 +104,7 @@ class CGTxn(object):
         ret += 'Sell ID : %s ; ' % (self.sell_id)
         ret += 'Buy ID : %s ; ' % self.buy_id
         ret += 'Sell Time : %s ; ' % (self.sell_time)
-        ret += 'BTC : %f ; ' % (self.vol / 100000000.0)
+        ret += 'BTC : %f ; ' % (self.vol / SATOSHIS_F)
         ret += 'Gain (INR) : %.2f ; ' % (self.gain)
         ret += 'STG : %s' % (self.stg)
 
@@ -211,6 +211,18 @@ class Portfolio(object):
 
         assert(False)                     # We should not run out of buys
 
+def build_txns (buys_json, sells_json):
+    # FIXME: We will need to ensure it is sorted in chronological order
+    buys = []
+    for txn in buys_json['result']:
+        buys.append(Txn(BUY, **txn))
+
+    sells = []
+    for txn in sells_json['result']:
+        sells.append(Txn(SELL, **txn))
+
+    return buys, sells
+
 def main ():
     buys_fn = sys.argv[1]
     sells_fn = sys.argv[2]
@@ -218,17 +230,11 @@ def main ():
     with open(buys_fn, "r") as f:
         buys_json = demjson.decode(f.read())
 
-    # FIXME: We will need to ensure it is sorted in chronological order
-    buys = []
-    for txn in buys_json['result']:
-        buys.append(Txn(BUY, **txn))
 
     with open(sells_fn, "r") as f:
         sells_json = demjson.decode(f.read())
 
-    sells = []
-    for txn in sells_json['result']:
-        sells.append(Txn(SELL, **txn))
+    buys, sells = build_txns(buys_json, sells_json)
 
     p = Portfolio(buys, sells)
     s = time.mktime(datetime(2015, 04, 01).timetuple())*1000
