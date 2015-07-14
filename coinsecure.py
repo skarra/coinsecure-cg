@@ -27,6 +27,7 @@ URL_BASE = "https://api.coinsecureis.cool/v0/"
 URL_BUYS = "auth/completeduserbids"
 URL_SELLS = "auth/completeduserasks"
 
+ONEDAY = 86400000
 DEBUG = False
 
 jsonpickle.set_preferred_backend('demjson')
@@ -100,7 +101,7 @@ class MainPageHandler(CSHandler):
         dt = datetime.strptime(date_from, "%Y-%m-%d")
         from_ts = ts_ms_from_dt(dt)
         dt = datetime.strptime(date_to, "%Y-%m-%d")
-        to_ts = ts_ms_from_dt(dt)
+        to_ts = ts_ms_from_dt(dt) + ONEDAY
 
         cgs = p.cg(from_ts, to_ts)
         result = {
