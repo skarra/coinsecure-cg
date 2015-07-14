@@ -7,10 +7,15 @@
 ## Licenced under Affero GPL (AGPL) version 3
 ##
 
-import demjson, jinja2, logging, os, urllib2, webapp2
+import demjson, jsonpickle, jinja2, logging, os, time, urllib2, webapp2
+from datetime import datetime
 
 from google.appengine.api   import urlfetch
 from google.appengine.ext   import ndb
+
+import cg
+from cg import ts_ms_from_dt
+from cg import Portfolio
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'templates')
 JENV = jinja2.Environment(
@@ -21,6 +26,10 @@ JENV = jinja2.Environment(
 URL_BASE = "https://api.coinsecureis.cool/v0/"
 URL_BUYS = "auth/completeduserbids"
 URL_SELLS = "auth/completeduserasks"
+
+DEBUG = False
+
+jsonpickle.set_preferred_backend('demjson')
 
 class CSHandler(webapp2.RequestHandler):
     def fetch_trades (self, url, apikey, body):
@@ -62,8 +71,50 @@ class TradesHandler(CSHandler):
 
 class MainPageHandler(CSHandler):
     def get (self):
-        template = JENV.get_template('index.html')
-        self.response.write(template.render())
+        apikey    = self.request.get('apikey', None)
+        date_from = self.request.get('from', None)
+        date_to   = self.request.get('to', None)
+
+        if not (apikey or date_from or date_to):
+            template = JENV.get_template('index.html')
+            self.response.write(template.render({
+                'cgs' : None,
+                'error' : None
+                }))
+            return
+
+        if not (apikey and date_from and date_to):
+            template = JENV.get_template('index.html')
+            self.response.write(template.render({
+                'cgs' : None,
+                'error' : "All form fields are mandatory"
+                }))
+            return
+
+        buys_json  = self.fetch_buys(apikey)
+        sells_json = self.fetch_sells(apikey)
+
+        buys, sells = cg.build_txns(buys_json, sells_json)
+        p = Portfolio(buys, sells)
+
+        dt = datetime.strptime(date_from, "%Y-%m-%d")
+        from_ts = ts_ms_from_dt(dt)
+        dt = datetime.strptime(date_to, "%Y-%m-%d")
+        to_ts = ts_ms_from_dt(dt)
+
+        cgs = p.cg(from_ts, to_ts)
+        result = {
+            'cgs' : cgs,
+            'cgmod' : cg,
+            'error' : None
+            }
+
+        if DEBUG:
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.out.write(jsonpickle.encode(result))
+        else:
+            template = JENV.get_template('index.html')
+            self.response.write(template.render(result))
 
 app = webapp2.WSGIApplication([('/', MainPageHandler),
                                ('/trades/(.*)', TradesHandler)

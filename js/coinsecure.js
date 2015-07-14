@@ -54,6 +54,8 @@ function addFormHandlers () {
     $("#compute").submit(function() {
 	saveFormFields();
     });
+
+    $("#cgtxns").dataTable();
 }
 
 function onLoad () {

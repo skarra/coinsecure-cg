@@ -28,4 +28,39 @@
     </form>
 </div>
 
+{% if cgs %}
+
+<hr/>
+<div class="container">
+  <h4>Detailed Transaction Match Log</h4><p/><p/>
+
+  <table id="cgtxns" class="table table-striped table-bordered dataTable" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>Sell ID</th>
+		<th>Date</th>
+                <th>Buy ID</th>
+                <th>Date</th>
+                <th>Vol (BTC)</th>
+                <th>Gain (INR)</th>
+                <th>Short Term?</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for cgtxn in cgs['txn_log'] %}
+            <tr>
+                <td>{{ cgtxn.sell_id }}</td>
+		<td>{{ cgmod.dt_from_ts_ms(cgtxn.sell_time) }}</td>
+                <td>{{ cgtxn.buy_id }}</td>
+                <td>{{ cgmod.dt_from_ts_ms(cgtxn.buy_time) }}</td>
+                <td>{{ cgtxn.vol / 100000000.0}}</td>
+                <td>{{ cgtxn.gain }}</td>
+                <td>{{ cgtxn.stg }} </td>
+            </tr>
+        {% endfor %}
+  </table>
+</div>
+{% endif %}
+
 {% endblock %}
