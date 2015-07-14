@@ -40,10 +40,12 @@
                 <th>Sell Txn ID</th>
 		<th>Sell Date</th>
                 <th>Buy Txn ID</th>
-                <th>BUy Date</th>
-                <th>Vol (BTC)</th>
+                <th>Buy Date</th>
+                <th>Open Vol (BTC)</th>
+                <th>Txn Vol (BTC)</th>
+                <th>Close Vol (BTC)</th>
                 <th>Gain (INR)</th>
-                <th>Short Term?</th>
+                <th>STG</th>
             </tr>
         </thead>
 
@@ -51,10 +53,12 @@
         {% for cgtxn in cgs['txn_log'] %}
             <tr>
                 <td>{{ cgtxn.sell_id }}</td>
-		<td>{{ cgmod.dt_from_ts_ms(cgtxn.sell_time) }}</td>
+		<td>{{ cgmod.disp_time_from_ts_ms(cgtxn.sell_time) }}</td>
                 <td>{{ cgtxn.buy_id }}</td>
-                <td>{{ cgmod.dt_from_ts_ms(cgtxn.buy_time) }}</td>
+                <td>{{ cgmod.disp_time_from_ts_ms(cgtxn.buy_time) }}</td>
+                <td>{{ cgtxn.open_vol / 100000000.0}}</td>
                 <td>{{ cgtxn.vol / 100000000.0}}</td>
+                <td>{{ cgtxn.close_vol / 100000000.0}}</td>
                 <td>{{ cgtxn.gain }}</td>
                 <td>{{ cgtxn.stg }} </td>
             </tr>

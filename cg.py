@@ -25,6 +25,15 @@ def dt_from_ts_ms (ts_ms):
     millisec = ts_ms % 1000
     return datetime.fromtimestamp(ts_ms/1000).replace(microsecond=millisec * 1000)
 
+def disp_time_from_ts_ms (ts_ms):
+    """
+    Convert a Unix timestamp since the Epoch, when it also has a millisecond
+    value built in
+    """
+
+    dt = dt_from_ts_ms(ts_ms)
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
 def ts_ms_from_dt (dt):
     return time.mktime(dt.timetuple())*1000
 

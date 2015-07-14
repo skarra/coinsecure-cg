@@ -91,3 +91,12 @@
     color: white;
     border-color: #4285f4;
 }
+
+#cgtxns td {
+    font-size: 80%;
+}
+
+#cgtxns th {
+    font-size: 90%;
+    font-weight: bold;
+}
