@@ -25,6 +25,9 @@ def dt_from_ts_ms (ts_ms):
     millisec = ts_ms % 1000
     return datetime.fromtimestamp(ts_ms/1000).replace(microsecond=millisec * 1000)
 
+def ts_ms_from_dt (dt):
+    return time.mktime(dt.timetuple())*1000
+
 class TxnType(object):
     def __init__ (self, typ):
         self.typ = typ
