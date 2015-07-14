@@ -28,7 +28,6 @@ URL_BUYS = "auth/completeduserbids"
 URL_SELLS = "auth/completeduserasks"
 
 ONEDAY = 86400000
-DEBUG = False
 
 jsonpickle.set_preferred_backend('demjson')
 
@@ -75,6 +74,7 @@ class MainPageHandler(CSHandler):
         apikey    = self.request.get('apikey', None)
         date_from = self.request.get('from', None)
         date_to   = self.request.get('to', None)
+        debug     = self.request.get('debug', False)
 
         if not (apikey or date_from or date_to):
             template = JENV.get_template('index.html')
@@ -110,7 +110,7 @@ class MainPageHandler(CSHandler):
             'error' : None
             }
 
-        if DEBUG:
+        if debug:
             self.response.headers['Content-Type'] = 'application/json'
             self.response.out.write(jsonpickle.encode(result))
         else:
