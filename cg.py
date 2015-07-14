@@ -189,12 +189,13 @@ class Portfolio(object):
                           buy_time  = buy.time, sell_time = sell.time,
                           buy_rate = buy.rate, sell_rate = sell.rate)
 
-            self.cgtxns.append(cgtxn)
+            if sell.time > start_date:
+                self.cgtxns.append(cgtxn)
 
-            if cgtxn.stg:
-                self.stg += cgtxn.gain
-            else:
-                self.ltg += cgtxn.gain
+                if cgtxn.stg:
+                    self.stg += cgtxn.gain
+                else:
+                    self.ltg += cgtxn.gain
 
             buy.vol  -= vol
             sell.vol -= vol
