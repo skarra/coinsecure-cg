@@ -77,6 +77,8 @@ class CGTxn(object):
         # Note that this will either correspond to buy_vol or sell_vol but not
         # necessarily both.
         self.vol       = kwargs.get('vol', 0.0)
+        self.open_vol  = 0.0
+        self.close_vol = 0.0
 
         self.buy_rate  = kwargs.get('buy_rate', 0.0)
         self.sell_rate = kwargs.get('sell_rate', 0.0)
@@ -197,8 +199,10 @@ class Portfolio(object):
                 else:
                     self.ltg += cgtxn.gain
 
+            cgtxn.open_vol = buy.vol
             buy.vol  -= vol
             sell.vol -= vol
+            cgtxn.close_vol = buy.vol
 
             if start_date > sell.time:
                 self.start_balance -= vol
