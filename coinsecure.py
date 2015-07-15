@@ -87,7 +87,7 @@ class TradesHandler(CSHandler):
             'error' : None
             }))
 
-class MainPageHandler(CSHandler):
+class CGActualHandler(CSHandler):
     def get (self):
         apikey    = self.request.get('apikey', None)
         date_from = self.request.get('from', None)
@@ -95,7 +95,7 @@ class MainPageHandler(CSHandler):
         debug     = self.request.get('debug', False)
 
         if not (apikey or date_from or date_to):
-            template = JENV.get_template('index.html')
+            template = JENV.get_template('cg-actual.html')
             self.response.write(template.render({
                 'cgs' : None,
                 'error' : None
@@ -103,7 +103,7 @@ class MainPageHandler(CSHandler):
             return
 
         if not (apikey and date_from and date_to):
-            template = JENV.get_template('index.html')
+            template = JENV.get_template('cg-actual.html')
             self.response.write(template.render({
                 'cgs' : None,
                 'error' : "All form fields are mandatory"
@@ -131,9 +131,16 @@ class MainPageHandler(CSHandler):
             self.response.headers['Content-Type'] = 'application/json'
             self.response.out.write(jsonpickle.encode(result))
         else:
-            template = JENV.get_template('index.html')
+            template = JENV.get_template('cg-actual.html')
             self.response.write(template.render(result))
 
+class MainPageHandler(CSHandler):
+    def get (self):
+        template = JENV.get_template('index.html')
+        self.response.write(template.render())
+
 app = webapp2.WSGIApplication([('/', MainPageHandler),
-                               ('/trades', TradesHandler)
+                               ('/trades', TradesHandler),
+                               ('/cgActual', CGActualHandler),
                                ])
+

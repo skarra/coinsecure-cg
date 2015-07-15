@@ -2,69 +2,58 @@
 
 {% block base_body %}
 
-<div class="container">
-  <form id="compute">
-    <div class="col-xs-4">
-      <input type="text" placeholder="Coinsecure API Key" 
-	     class="form-control"
-	     id="apikey" name="apikey" />
-    </div>
+<div class="container main-content">
+  <h2> About </h2>
+  <h3> The App </h3>
+  <div>
+    This is my submission for the
+    <a href="https://bitcointalk.org/index.php?topic=1097394.0">July
+    Hackathon</a> run by <a href="https://coinsecure.in">Coinsecure</a>, an
+    Indian Bitcoin exchange. The app uses
+    the <a href="https://api.coinsecureis.cool/">Coinsecure API</a> to build
+    useful reporting for frequent traders on the Coinsecure portal. The source
+    code powering this app is open sourced under the Affero GPL,
+    and <a href="https://github.com/skarra/coinsecure-cg">available on
+    Github.</a>
+  </div>
 
-    <div class="col-xs-2">
-      <input type="text" placeholder="Date From" class="form-control"
-	     id="from" name="from" />
-    </div>
+  <h3> The Author </h3>
+  <div>
+    My name is <span class="emph">Sriram Karra</span>; you can find more
+    about me on <a href="https://github.com/skarra">Github</a>,
+    <a href="https://plus.google.com/114708180777829794970/about">
+      Google+</a>, <a href="http://in.linkedin.com/in/sriramkarra">
+      LinkedIn</a>, and <a href="http://twitter.com/skarra">
+      twitter </a>. In short, I have a day job as a Product Manager at
+    <a href="//www.hackerrank.com">an exciting startup</a>. I program for fun
+    in my spare time.
+  </div>
 
-    <div class="col-xs-2">
-      <input type="text" placeholder="Date to" class="form-control"
-	     id="to" name="to" />
-    </div>
+  <h2> Features </h2>
+  <div>
+    Three main features are available, and can be accessed through the top
+    navigation bar.
+    <ol>
+      <li>Transactions: View your transaction history in a neat summary</li>
 
-    <div class="col-xs-2">
-      <button id="compute" type="submit" class="btn btn-cs-prim">
-	Compute
-      </button>
-    </div>
-    </form>
+      <li>Capital Gains - Acutal: Find out your CG for sell transactions in
+	any given date range. This can be useful for computing your tax
+	liability, for e.g.</li>
+
+      <li>Capital Gains - Projection: This is useful to identify your gain
+      and resulting tax liability if you plan to sell part of your holding
+      right now or in the future.</li>
+    </ol>
+
+  </div>
+
+  <h2>What you need</h2>
+  <div>    
+    All features access the Coinsecure testnet instance, you will need an
+    account and an API Key on the testnet
+    instance. <a href="https://coinsecureis.cool">Head over there</a> if you'd
+    like to create a test account and fetch an API Key.
+  </div>
+
 </div>
-
-{% if cgs %}
-
-<hr/>
-<div class="container">
-  <h4>Sell/Buy FIFO Settlement Log</h4><p/><p/>
-
-  <table id="cgtxns" class="table table-striped table-bordered dataTable" cellspacing="0" width="100%">
-        <thead>
-            <tr>
-                <th>Sell Txn ID</th>
-		<th>Sell Date</th>
-                <th>Buy Txn ID</th>
-                <th>Buy Date</th>
-                <th>Open (BTC)</th>
-                <th>Vol (BTC)</th>
-                <th>Close (BTC)</th>
-                <th>Gain (INR)</th>
-                <th>STG</th>
-            </tr>
-        </thead>
-
-        <tbody>
-        {% for cgtxn in cgs['txn_log'] %}
-            <tr>
-                <td>{{ cgtxn.sell_id }}</td>
-		<td>{{ cgmod.disp_time_from_ts_ms(cgtxn.sell_time) }}</td>
-                <td>{{ cgtxn.buy_id }}</td>
-                <td>{{ cgmod.disp_time_from_ts_ms(cgtxn.buy_time) }}</td>
-                <td>{{ cgtxn.open_vol / 100000000.0}}</td>
-                <td>{{ cgtxn.vol / 100000000.0}}</td>
-                <td>{{ cgtxn.close_vol / 100000000.0}}</td>
-                <td>{{ cgtxn.gain }}</td>
-                <td>{{ cgtxn.stg }} </td>
-            </tr>
-        {% endfor %}
-  </table>
-</div>
-{% endif %}
-
 {% endblock %}

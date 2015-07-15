@@ -8,9 +8,47 @@
     font-family: 'Roboto', sans-serif;
 }
 
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+    margin-bottom: 40px;
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: .5px;
+/*    -webkit-font-smoothing: antialiased;*/
+    font-weight: 300;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 45px;
+  background-color: #b48f6a;
+  text-color: white;
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+.container .text-muted {
+  margin: 10px 0;
+  color: #bbbbbb;
+}
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
 .navbar-inverse {
-    background-color: #4285f4;
-    border-color: #4285f4;
+    background-color: #6C4726;
+    border-color: #6C4726;
     background-image: none;
 
     webkit-transition: -webkit-transform .5s;
@@ -30,6 +68,10 @@
 .navbar-inverse .navbar-brand {
     color: #ffffff;
     font-size: 20px;
+}
+
+.navbar-inverse .nav li a {
+    color: #ffffff;!important
 }
 
 .jumbotron h1 {
@@ -87,13 +129,13 @@
 }
 
 .btn-cs-prim {
-    background-color: #4285f4;
+    background-color: #9F734F;
     color: white;
-    border-color: #4285f4;
+    border-color: #9F734F;
 }
 
 table td {
-    font-size: 80%;
+    font-size: 70%;
 }
 
 table th {
@@ -105,4 +147,72 @@ table th {
     width: 15%;
     margin: auto;
     padding-bottom: 25px;
+}
+
+.center-250 {
+    width: 250px;
+    margin: auto;
+}
+
+.center-50 {
+    width: 80%;
+    margin-bottom: 40px;
+}
+
+.sub-nav {
+    margin-top: 25px;
+}
+
+.pagination>.active>a {
+    background-color:  #c5a07b;
+    border-color:  #c5a07b;
+}
+
+.main-content {
+
+    margin-top: 40px;
+    margin-bottom: 40px;
+
+    padding: 30px;
+    padding-top: 10px;
+
+    border: 1px solid #c5a07b;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -o-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -khtml-border-radius: 4px;
+    border-radius: 4px;
+    -moz-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 0, 0, 0.1) inset;
+    -webkit-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 0, 0, 0.1) inset;
+    -o-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 0, 0, 0.1) inset;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 0, 0, 0.1) inset;
+/* Form elements */
+
+    color: black;
+/*    background-color : beige;*/
+}
+
+h2, h3 {
+    font-weight: 300;
+}
+
+a {
+    font-weight: 500;
+}
+
+li {
+    margin-top: 0.4em;
+}
+
+.nav > li {
+    margin-top: 0;
+}
+
+.dataTables_length,  .dataTables_filter label {
+    font-size: 80%;
+}
+
+.dataTables_info, .dataTables_paginate {
+    font-size: 60%;
 }

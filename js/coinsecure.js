@@ -31,12 +31,12 @@ function addDatePickerHandler () {
     });
 }
 
-function saveFormFields () {
-    console.log('Saving form fields to localstorage...');
+function saveAllFormFields () {
+    console.log('Saving all form fields to localstorage...');
     localStorage.setItem("cs_apikey", $("#apikey").val());
     localStorage.setItem("cs_from", $("#from").val());
     localStorage.setItem("cs_to", $("#to").val());
-    console.log('Saving form fields to localstorage...done.');
+    console.log('Saving all form fields to localstorage...done.');
 }
 
 function loadFormFields () {
@@ -51,8 +51,8 @@ function addFormHandlers () {
 
     addDatePickerHandler();
 
-    $("#compute").submit(function() {
-	saveFormFields();
+    $("#compute_cg_act").submit(function() {
+	saveAllFormFields();
     });
 
     $("#cgtxns").dataTable();
