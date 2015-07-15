@@ -3,7 +3,24 @@
 {% block base_body %}
 
 <div class="container">
+  <form id="fetch_txns">
+    <div class="col-xs-6">
+      <input type="text" placeholder="Coinsecure API Key" 
+            class="form-control"
+            id="apikey" name="apikey" />
+    </div>
 
+    <div class="col-xs-2">
+      <button type="submit" class="btn btn-cs-prim">
+	View Transactions
+      </button>
+    </div>
+    </form>
+</div>
+
+{% if txns %}
+<hr/>
+<div class="container">
   <div class="row">
     <div class="col-xs-6">
       <div class="table-heading">
@@ -73,5 +90,7 @@
 
   </div>
 </div>
+
+{% endif %}
 
 {% endblock %}

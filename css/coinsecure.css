@@ -139,7 +139,7 @@ table td {
 }
 
 table th {
-    font-size: 90%;
+    font-size: 80%;
     font-weight: bold;
 }
 
@@ -208,6 +208,12 @@ li {
 .nav > li {
     margin-top: 0;
 }
+
+.active-nav {
+    color: orange !important;
+}
+
+.navbar-brand:hover, .nav a:hover { color: orange !important; }
 
 .dataTables_length,  .dataTables_filter label {
     font-size: 80%;

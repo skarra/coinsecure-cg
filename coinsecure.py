@@ -73,14 +73,17 @@ class TradesHandler(CSHandler):
     def get (self):
         apikey = self.request.get('apikey', None)
         if apikey in [None, ""]:
+            txns  = False
             buys  = []
             sells = []
         else:
+            txns  = True
             buys  = self.fetch_buys(apikey)
             sells = self.fetch_sells(apikey)
 
         template = JENV.get_template('transactions.html')
         self.response.write(template.render({
+            'txns'  : txns,
             'buys'  : buys,
             'sells' : sells,
             'cgmod' : cg,

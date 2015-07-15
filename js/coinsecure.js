@@ -55,14 +55,34 @@ function addFormHandlers () {
 	saveAllFormFields();
     });
 
+    $("#fetch_txns").submit(function() {
+	localStorage.setItem("cs_apikey", $("#apikey").val());
+    });
+
     $("#cgtxns").dataTable();
     $("#buys").dataTable();
     $("#sells").dataTable();
 }
 
+function setActiveNav () {
+    var pathname = window.location.pathname;;
+    console.log('url: ' + pathname);
+
+    if (pathname == '/') {
+	$("#nav_brand").addClass("active-nav");
+    } else if (pathname == "/trades") {
+	$("#nav_txns").addClass("active-nav");
+    } else if (pathname == "/cgActual") {
+	$("#nav_cg_act").addClass("active-nav");
+    } else if (pathname == "/cgProj") {
+	$("#nav_cg_pr").addClass("active-nav");
+    }
+}
+
 function onLoad () {
     // Initialize the database if available
     addFormHandlers();
+    setActiveNav();
     loadFormFields();
 }
 
