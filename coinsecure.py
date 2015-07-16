@@ -30,23 +30,28 @@ ONEDAY = 86400000                         # Delta in Unix timestamps for 1 Day
 
 jsonpickle.set_preferred_backend('demjson')
 
+class CSError(Exception):
+    pass
+
 class CSHandler(webapp2.RequestHandler):
     def fetch_trades (self, url, apikey, body):
         ret = {}
-        try:
-            req = urllib2.Request(url, body,
-                                   {'Content-Type': 'application/json'})
-            resp = urllib2.urlopen(req)
-            ret = demjson.decode(resp.read())
-        except urllib2.URLError, e:
-            logging.error("Could not fetch bid list: %s", e)
+        req = urllib2.Request(url, body,
+                              {'Content-Type': 'application/json'})
+        resp = urllib2.urlopen(req)
+        content = resp.read()
 
-        return ret
+        c = demjson.decode(content)
+        if 'error' in c:
+            raise CSError(c[u'error'])
+
+        return demjson.decode(content)
 
     def fetch_buys (self, apikey):
         body = demjson.encode({'apiKey' : apikey})
         url = URL_BASE + URL_BUYS
         js = self.fetch_trades(url, apikey, body)
+
         ret = []
         for txn in js['result']:
             ret.append(Txn(BUY, **txn))
@@ -72,14 +77,24 @@ class TradesHandler(CSHandler):
 
     def get (self):
         apikey = self.request.get('apikey', None)
+
+        txns  = False
+        buys  = []
+        sells = []
+        error = False
+        errmsg = ''
+
         if apikey in [None, ""]:
-            txns  = False
-            buys  = []
-            sells = []
+            pass
         else:
             txns  = True
-            buys  = self.fetch_buys(apikey)
-            sells = self.fetch_sells(apikey)
+            try:
+                buys  = self.fetch_buys(apikey)
+                # sells = self.fetch_sells(apikey)
+            except Exception, e:
+                errmsg = str(e)
+                logging.error(errmsg)
+                error = True
 
         template = JENV.get_template('transactions.html')
         self.response.write(template.render({
@@ -87,7 +102,8 @@ class TradesHandler(CSHandler):
             'buys'  : buys,
             'sells' : sells,
             'cgmod' : cg,
-            'error' : None
+            'error' : error,
+            'errmsg' : errmsg
             }))
 
 class CGActualHandler(CSHandler):
@@ -97,11 +113,16 @@ class CGActualHandler(CSHandler):
         date_to   = self.request.get('to', None)
         debug     = self.request.get('debug', False)
 
+        error  = False
+        errmsg = ""
+        buys   = []
+        sells  = []
+
         if not (apikey or date_from or date_to):
             template = JENV.get_template('cg-actual.html')
             self.response.write(template.render({
                 'cgs' : None,
-                'error' : None
+                'error' : False
                 }))
             return
 
@@ -109,12 +130,19 @@ class CGActualHandler(CSHandler):
             template = JENV.get_template('cg-actual.html')
             self.response.write(template.render({
                 'cgs' : None,
-                'error' : "All form fields are mandatory"
+                'error' : True,
+                'errmsg' : "All form fields are mandatory"
                 }))
             return
 
-        buys  = self.fetch_buys(apikey)
-        sells = self.fetch_sells(apikey)
+        try:
+            buys  = self.fetch_buys(apikey)
+            sells = self.fetch_sells(apikey)
+            error = False
+        except Exception, e:
+            error = True
+            logging.error(str(e))
+            errmsg = str(e)
 
         p = Portfolio(buys, sells)
 
@@ -127,7 +155,8 @@ class CGActualHandler(CSHandler):
         result = {
             'cgs' : cgs,
             'cgmod' : cg,
-            'error' : None
+            'error' : error,
+            'errmsg' : errmsg
             }
 
         if debug:

@@ -177,6 +177,7 @@ class Portfolio(object):
                 'short_gain' : self.stg,
                 'long_gain' : self.ltg,
                 'txn_log' : self.cgtxns,
+                'vol' : self.start_balance - self.end_balance,
                 'start_balance' : self.start_balance,
                 'end_balance' : self.end_balance
                 }

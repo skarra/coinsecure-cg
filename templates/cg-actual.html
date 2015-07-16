@@ -27,9 +27,72 @@
     </form>
 </div>
 
+<hr/>
+{% if error %}
+
+<div class="container">
+<h2>Error</h2>
+
+{{ errmsg }}
+
+</div>
+{% else %}
+
 {% if cgs %}
 
+<div class="container">
+  <h4 class="center-250">Summary for Selected Period</h4><p/><p/>
+  <div class="row">
+    <div class="col-xs-4">
+      <div>
+	<div class="headline-metric-1">
+	  {{ cgs['start_balance'] / 100000000.0 }}
+	</div>
+	<div>Starting Holding (BTC)</div>
+      </div>
+    </div>
+
+    <div class="col-xs-4">
+      <div>
+	<div class="headline-metric-1">
+	  {{ cgs['vol'] / 100000000.0 }}
+	</div>
+	<div>Traded Vol (BTC)</div>
+      </div>
+    </div>
+
+    <div class="col-xs-4">
+      <div>
+	<div class="headline-metric-1">
+	  {{ cgs['end_balance'] / 100000000.0 }}
+	</div>
+	<div>Closing Holding (BTC)</div>
+      </div>
+    </div>
+
+    <div class="col-xs-4">
+      <div>
+	<div class="headline-metric-3">
+	  {{ cgs['short_gain'] }}
+	</div>
+	<div>Short Term Gain (INR)</div>
+      </div>
+    </div>
+
+    <div class="col-xs-4">
+      <div>
+	<div class="headline-metric-3">
+	  {{ cgs['long_gain'] }}
+	</div>
+	<div>Long Term Gain (INR)</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <hr/>
+
 <div class="container">
   <h4 class="center-250">Sell/Buy FIFO Settlement Log</h4><p/><p/>
 
@@ -64,6 +127,7 @@
         {% endfor %}
   </table>
 </div>
+{% endif %}
 {% endif %}
 
 {% endblock %}

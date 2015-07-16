@@ -222,3 +222,31 @@ li {
 .dataTables_info, .dataTables_paginate {
     font-size: 60%;
 }
+
+.headline-metric-1, .headline-metric-2, .headline-metric-3 {
+    font-size: 80px;
+    font-weight: 100;
+    display: inline;
+    margin-bottom:0;
+    padding-bottom: 0;
+}
+
+.headline-metric-1 {
+    color: orange;
+}
+
+.headline-metric-2 {
+    color: green;
+}
+
+.headline-metric-3 {
+    color: blue;
+}
+
+.question {
+    font-weight: 400;
+}
+
+.answer {
+    margin-top: 15px;
+}
