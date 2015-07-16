@@ -173,7 +173,7 @@ class MainPageHandler(CSHandler):
         self.response.write(template.render())
 
 app = webapp2.WSGIApplication([('/', MainPageHandler),
-                               ('/trades', TradesHandler),
+                               ('/transactions', TradesHandler),
                                ('/cgActual', CGActualHandler),
                                ])
 

@@ -70,7 +70,7 @@ function setActiveNav () {
 
     if (pathname == '/') {
 	$("#nav_brand").addClass("active-nav");
-    } else if (pathname == "/trades") {
+    } else if (pathname == "/transactions") {
 	$("#nav_txns").addClass("active-nav");
     } else if (pathname == "/cgActual") {
 	$("#nav_cg_act").addClass("active-nav");
