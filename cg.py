@@ -13,8 +13,10 @@ import demjson
 
 _BUY  = 0
 _SELL = 1
-SATOSHIS   = 100000000                                 # Num Satoshis in one BTC
+SATOSHIS   = 100000000                    # Num Satoshis in one BTC
 SATOSHIS_F = 100000000.0
+
+DEFAULT_LTG_THRESHOLD = 3                 # Num years BTC has to be held to LTG
 
 def dt_from_ts_ms (ts_ms):
     """
@@ -92,6 +94,10 @@ class CGTxn(object):
         self.buy_rate  = kwargs.get('buy_rate', 0.0)
         self.sell_rate = kwargs.get('sell_rate', 0.0)
 
+        self.ltg_threshold = kwargs.get('ltg_threshold', None)
+        if not self.ltg_threshold:
+            self.ltg_threshold = DEFAULT_LTG_THRESHOLD
+
         self.gain = self.vol/SATOSHIS_F * (self.sell_rate - self.buy_rate)/100.0
         self.stg  = self.apply_stg_rules()   # True if short term gain/loss
 
@@ -125,9 +131,10 @@ class CGError(Exception):
     pass
 
 class Portfolio(object):
-    def __init__ (self, buys, sells):
+    def __init__ (self, buys, sells, ltg_threshold=None):
         self.buys = buys
         self.sells = sells
+        self.ltg_threshold = ltg_threshold
 
         ## FIXME: Ensure buys and sells are sorted by timestamp
 
@@ -199,7 +206,8 @@ class Portfolio(object):
             cgtxn = CGTxn(buy_trade_id  = buy.trade_id,
                           sell_trade_id = sell.trade_id, vol = vol,
                           buy_time  = buy.time, sell_time = sell.time,
-                          buy_rate = buy.rate, sell_rate = sell.rate)
+                          buy_rate = buy.rate, sell_rate = sell.rate,
+                          ltg_threshold = self.ltg_threshold)
 
             if sell.time > start_date:
                 self.cgtxns.append(cgtxn)
