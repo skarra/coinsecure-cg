@@ -90,7 +90,7 @@ class TradesHandler(CSHandler):
             txns  = True
             try:
                 buys  = self.fetch_buys(apikey)
-                # sells = self.fetch_sells(apikey)
+                sells = self.fetch_sells(apikey)
             except Exception, e:
                 errmsg = str(e)
                 logging.error(errmsg)
