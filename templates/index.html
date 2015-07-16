@@ -4,15 +4,40 @@
 
 <div class="container main-content">
   <h2> About </h2>
+
+  <h3> The Motivation </h3>
+  <div>
+    There appears to be general consensus that Bitcoin is legal in
+    India. While that is a relief, it is a bit unsettling to know that there
+    are many other fundamental questions that remain to be settled
+    definitively. Questions such as whether Bitcoin is Currency, Commodity, or
+    Asset? And what the tax implications are for various players in the
+    ecosystem such as exchanges, traders, merchants accepting Bitcoin
+    etc. While these issues remain to be sorted, we have some guidelines from
+    some <a href="http://www.nishithdesai.com/fileadmin/user_upload/pdfs/Research%20Papers/Bitcoins.pdf">leading
+    lawyers who have taken a very deep look</a> at the problem and
+    have <a href="http://www.nishithdesai.com/fileadmin/user_upload/pdfs/Research%20Articles/Are_bitcoins_currency_or_asset.pdf">advised
+    us</a> to consider Bitcoin as an Asset for direct tax purposes.
+  </div><p/>
+
+  <div>
+    If we take that advise, all traders in Bitcoin should compute their
+    Capital Gains arising out of sales of Bitcoin and pay Income Tax. To help
+    with this step I have built this tool, which will pull your transaction
+    history from Coinsecure and compute your Gains. Computing the actual tax
+    burden on the computed Gain is left an exercise for the user.
+  </div>
+
   <h3> The App </h3>
   <div>
-    This is my submission for the
-    <a href="https://bitcointalk.org/index.php?topic=1097394.0">July
+    This is my submission for
+    the <a href="https://bitcointalk.org/index.php?topic=1097394.0">July
     Hackathon</a> run by <a href="https://coinsecure.in">Coinsecure</a>, an
-    Indian Bitcoin exchange. The app uses
-    <a href="https://api.coinsecureis.cool/">Coinsecure's API</a> to build
-    useful reports for traders using the Coinsecure portal. The
-    code powering this application is open sourced under the Affero GPL,
+    Indian Bitcoin exchange. The app is hosted on
+    <a href="appengine.google.com">Google Appengine</a>, and
+    uses <a href="https://api.coinsecureis.cool/">Coinsecure's API</a> to
+    build useful reports for traders using the Coinsecure Exchange. The code
+    powering this application is open sourced under the Affero GPL v3,
     and <a href="https://github.com/skarra/coinsecure-cg">available on
     Github.</a>
   </div>
@@ -37,8 +62,8 @@
     Three main features are available, and can be accessed through the top
     navigation bar.
     <ol>
-      <li><a href="/trades">Transactions</a>: View your transaction history in a
-      neat summary</li>
+      <li><a href="/transactions">Transactions</a>: View your transaction
+      history in a neat summary</li>
 
       <li><a href="/cgActual">Capital Gains - Actual</a>: Find out your
       Capital Gains for
@@ -78,6 +103,73 @@
 	Coinsecure.
       </div>
     </li>
+
+    <li>
+      <div class="question">
+	How do you compute the Capital Gains?
+      </div>
+
+      <div class="answer">
+	The logic is a simple FIFO based match of the Buy transactions against
+	Sell transactions. In the Capital Gains tabs you will find a detailed
+	list of paired transactions. Note that depending on the actual Buys
+	and Sells, one Sell may get matched to multiple Buys, and one Buy may
+	get matched to mre than one Sell txn.
+      </div>
+    </li>
+
+    <li>
+      <div class="question">
+	Why are you applying a FIFO rule?
+      </div>
+
+      <div class="answer">
+	That's the most logical thing to do.
+      </div>
+    </li>
+
+    <li>
+      <div class="question">
+	How do you classify gains as long term or short term?
+      </div>
+
+      <div class="answer">
+	After applying the simple FIFO matching logic if the Sell date for a
+	matched transaction is 3 or more years after the matching Buy
+	transaction, it is considered a Long Term Gain. Otherwise it is taken
+	as a Short Term Gain. This is based on the prevailing tax rules for
+	assets that are not Securities on which STT has been paid.
+      </div>
+    </li>
+
+    <li>
+      <div class="question">
+	Can I change the Threshold to some other value for computing the
+	capital gains?
+      </div>
+
+      <div class="answer">
+	Yes, it is possibe, but some manual work is involved. Send an
+	additional GET parameter ltg_threshold=1 by editing the URL in the
+	/cgActual page. But note that you can only specify a single number
+	that denotes years - so you cannot set it to less than one year.
+      </div>
+    </li>
+
+    <li>
+      <div class="question">
+	The CG computation is great, but can I just get the raw data for me to
+	build my own UI?
+      </div>
+
+      <div class="answer">
+	Yes, it is possibe, but some manual work is involved. Send an
+	additional GET parameter debug=True by editing the URL in the
+	/cgActual page.
+      </div>
+    </li>
+
+  </ol>
 
   </div>
 
