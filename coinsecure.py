@@ -112,7 +112,7 @@ class CGActualHandler(CSHandler):
         date_from = self.request.get('from', None)
         date_to   = self.request.get('to', None)
         debug     = self.request.get('debug', False)
-        ltg_threshold = self.request.get('stg_threshold', False)
+        ltg_threshold = self.request.get('ltg_threshold', False)
 
         error  = False
         errmsg = ""
@@ -145,7 +145,7 @@ class CGActualHandler(CSHandler):
             logging.error(str(e))
             errmsg = str(e)
 
-        p = Portfolio(buys, sells, ltg_threshold=ltg_threshold)
+        p = Portfolio(buys, sells, ltg_threshold=int(ltg_threshold))
 
         dt = datetime.strptime(date_from, "%Y-%m-%d")
         from_ts = ts_ms_from_dt(dt)
