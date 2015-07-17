@@ -167,6 +167,78 @@ class CGActualHandler(CSHandler):
             template = JENV.get_template('cg-actual.html')
             self.response.write(template.render(result))
 
+class CGProjHandler(CSHandler):
+    ## FIXME: Lot of code duplication betwen this and the CGActual
+    ## handler. ...
+    def get (self):
+        apikey = self.request.get('apikey', None)
+        sell_qty   = long(self.request.get('sell_qty', 0))
+        price  = float(self.request.get('sell_price', 0.0))
+        sell_price = long(price * 100)  # Paisa
+
+        debug     = self.request.get('debug', False)
+        ltg_threshold = self.request.get('ltg_threshold', False)
+
+        error  = False
+        errmsg = ""
+        buys   = []
+        sells  = []
+
+        if not apikey:
+            template = JENV.get_template('cg-proj.html')
+            self.response.write(template.render({
+                'cgs' : None,
+                'error' : False
+                }))
+            return
+
+        if not (apikey and sell_qty and sell_price):
+            template = JENV.get_template('cg-proj.html')
+            self.response.write(template.render({
+                'cgs' : None,
+                'error' : True,
+                'errmsg' : "All form fields are mandatory"
+                }))
+            return
+
+        try:
+            buys  = self.fetch_buys(apikey)
+            sells = self.fetch_sells(apikey)
+            error = False
+        except Exception, e:
+            error = True
+            logging.error(str(e))
+            errmsg = str(e)
+
+        p = Portfolio(buys, sells, ltg_threshold=int(ltg_threshold))
+
+        dt = datetime(1980, 01, 01)
+        from_ts = ts_ms_from_dt(dt)
+        dt = datetime.now()
+        to_ts = ts_ms_from_dt(dt)
+
+        cgs = p.cg(from_ts, to_ts)
+        if p.end_balance < sell_qty:
+            error = True
+            errmsg = "Your balance (%f BTC) is insufficient." % (p.end_balance / cg.SATOSHIS_F)
+        else:
+            p.gen_sells(sell_qty, sell_price, to_ts - 1)
+            cgs = p.cg(to_ts-2, to_ts)
+
+        result = {
+            'cgs' : cgs,
+            'cgmod' : cg,
+            'error' : error,
+            'errmsg' : errmsg
+            }
+
+        if debug:
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.out.write(jsonpickle.encode(result))
+        else:
+            template = JENV.get_template('cg-proj.html')
+            self.response.write(template.render(result))
+
 class MainPageHandler(CSHandler):
     def get (self):
         template = JENV.get_template('index.html')
@@ -175,5 +247,6 @@ class MainPageHandler(CSHandler):
 app = webapp2.WSGIApplication([('/', MainPageHandler),
                                ('/transactions', TradesHandler),
                                ('/cgActual', CGActualHandler),
+                               ('/cgProj', CGProjHandler),
                                ])
 

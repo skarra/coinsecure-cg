@@ -37,7 +37,7 @@ def disp_time_from_ts_ms (ts_ms):
     return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 def ts_ms_from_dt (dt):
-    return time.mktime(dt.timetuple())*1000
+    return long(time.mktime(dt.timetuple())*1000)
 
 class TxnType(object):
     def __init__ (self, typ):
@@ -233,6 +233,24 @@ class Portfolio(object):
                 return True
 
         assert(False)                     # We should not run out of buys
+
+    def gen_sells (self, vol, price, ts):
+        """Add a single Sell transaction for specified vol and price. Useful
+        for making gain projections.
+
+        vol in Satoshis, and price in Paise per BTC. ts is Unix timestamp"""
+
+        sell = Txn(SELL, **{
+            'time' : ts,
+            'vol' : vol,
+            'rate' : price,
+            'orderID' : 'gowron-order',
+            'tradeID' : 'gowron-trade',
+            'fiat' : price / (vol / SATOSHIS_F),
+            'rateSpecified' : price
+            })
+
+        self.sells.append(sell)
 
 def build_txns (buys_json, sells_json):
     # FIXME: We will need to ensure it is sorted in chronological order
