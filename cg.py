@@ -98,6 +98,8 @@ class CGTxn(object):
         self.ltg_threshold = kwargs.get('ltg_threshold', None)
         if not self.ltg_threshold:
             self.ltg_threshold = DEFAULT_LTG_THRESHOLD
+        else:
+            self.ltg_threshold = int(self.ltg_threshold)
 
         self.gain = self.vol/SATOSHIS_F * (self.sell_rate - self.buy_rate)/100.0
         self.stg  = self.apply_stg_rules()   # True if short term gain/loss
@@ -115,7 +117,7 @@ class CGTxn(object):
         buyt  = dt_from_ts_ms(self.buy_time)
         delta = sellt - buyt
 
-        return delta.days <= (365 * 3)
+        return delta.days <= (365 * self.ltg_threshold)
 
     def __repr__ (self):
         ret = '\n'
