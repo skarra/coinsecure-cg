@@ -116,6 +116,10 @@ function setActiveNav () {
 	cur_page = 'cg-proj';
     }
 
+    mixpanel.track('PageView', {
+	'Page Name' : cur_page,
+	'url' : window.location.pathname
+    });
     console.log('Set current page: ' + cur_page);
 }
 
