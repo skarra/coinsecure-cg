@@ -16,6 +16,7 @@ _SELL = 1
 SATOSHIS   = 100000000                    # Num Satoshis in one BTC
 SATOSHIS_F = 100000000.0
 
+ONEDAY = 86400000                         # Delta in Unix timestamps for 1 Day
 DEFAULT_LTG_THRESHOLD = 3                 # Num years BTC has to be held to LTG
 
 def dt_from_ts_ms (ts_ms):

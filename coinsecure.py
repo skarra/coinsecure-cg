@@ -26,8 +26,6 @@ URL_BASE = "https://api.coinsecureis.cool/v0/"
 URL_BUYS = "auth/completeduserbids"
 URL_SELLS = "auth/completeduserasks"
 
-ONEDAY = 86400000                         # Delta in Unix timestamps for 1 Day
-
 jsonpickle.set_preferred_backend('demjson')
 
 class CSError(Exception):
@@ -48,9 +46,13 @@ class CSHandler(webapp2.RequestHandler):
         return demjson.decode(content)
 
     def fetch_buys (self, apikey):
-        body = demjson.encode({'apiKey' : apikey})
-        url = URL_BASE + URL_BUYS
-        js = self.fetch_trades(url, apikey, body)
+        if apikey == "test":
+            with open("data/test_buys.json") as f:
+                js = demjson.decode(f.read())
+        else:
+            body = demjson.encode({'apiKey' : apikey})
+            url = URL_BASE + URL_BUYS
+            js = self.fetch_trades(url, apikey, body)
 
         ret = []
         for txn in js['result']:
@@ -59,9 +61,13 @@ class CSHandler(webapp2.RequestHandler):
         return ret
 
     def fetch_sells (self, apikey):
-        body = demjson.encode({'apiKey' : apikey})
-        url = URL_BASE + URL_SELLS
-        js = self.fetch_trades(url, apikey, body)
+        if apikey == "test":
+            with open("data/test_sells.json") as f:
+                js = demjson.decode(f.read())
+        else:
+            body = demjson.encode({'apiKey' : apikey})
+            url = URL_BASE + URL_SELLS
+            js = self.fetch_trades(url, apikey, body)
 
         ret = []
         for txn in js['result']:
@@ -93,7 +99,7 @@ class TradesHandler(CSHandler):
                 sells = self.fetch_sells(apikey)
             except Exception, e:
                 errmsg = str(e)
-                logging.error(errmsg)
+                logging.error("Error in TradesHandler: %s", e)
                 error = True
 
         template = JENV.get_template('transactions.html')
@@ -150,7 +156,7 @@ class CGActualHandler(CSHandler):
         dt = datetime.strptime(date_from, "%Y-%m-%d")
         from_ts = ts_ms_from_dt(dt)
         dt = datetime.strptime(date_to, "%Y-%m-%d")
-        to_ts = ts_ms_from_dt(dt) + ONEDAY
+        to_ts = ts_ms_from_dt(dt) + cg.ONEDAY
 
         cgs = p.cg(from_ts, to_ts)
         result = {
@@ -220,7 +226,9 @@ class CGProjHandler(CSHandler):
         cgs = p.cg(from_ts, to_ts)
         if p.end_balance < sell_qty:
             error = True
-            errmsg = "Your balance (%f BTC) is insufficient." % (p.end_balance / cg.SATOSHIS_F)
+            errmsg = ("Cannot sell %f BTC as your current balance (%f BTC) " +
+                      "is insufficient." ) % (sell_qty / cg.SATOSHIS_F,
+                                              p.end_balance / cg.SATOSHIS_F)
         else:
             p.gen_sells(sell_qty, sell_price, to_ts - 1)
             cgs = p.cg(to_ts-2, to_ts)
