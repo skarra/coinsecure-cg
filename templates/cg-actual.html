@@ -56,7 +56,7 @@
     <div class="col-xs-4">
       <div>
 	<div class="headline-metric-1">
-	  {{ cgs['start_balance'] / 100000000.0 }}
+	  {{ '%0.5f' % (cgs['start_balance'] / 100000000.0) }}
 	</div>
 	<div>Starting Holding (BTC)</div>
       </div>
@@ -65,7 +65,7 @@
     <div class="col-xs-4">
       <div>
 	<div class="headline-metric-1">
-	  {{ cgs['vol'] / 100000000.0 }}
+	  {{ '%.05f' % (cgs['vol'] / 100000000.0) }}
 	</div>
 	<div>Traded Vol (BTC)</div>
       </div>
@@ -74,7 +74,7 @@
     <div class="col-xs-4">
       <div>
 	<div class="headline-metric-1">
-	  {{ cgs['end_balance'] / 100000000.0 }}
+	  {{ '%.05f' % (cgs['end_balance'] / 100000000.0) }}
 	</div>
 	<div>Closing Holding (BTC)</div>
       </div>
@@ -83,7 +83,7 @@
     <div class="col-xs-4">
       <div>
 	<div class="headline-metric-3">
-	  {{ cgs['short_gain'] }}
+	  {{ '%.02f' % cgs['short_gain'] }}
 	</div>
 	<div>Short Term Gain (INR)</div>
       </div>
@@ -92,7 +92,7 @@
     <div class="col-xs-4">
       <div>
 	<div class="headline-metric-3">
-	  {{ cgs['long_gain'] }}
+	  {{ '%.02f' % cgs['long_gain'] }}
 	</div>
 	<div>Long Term Gain (INR)</div>
       </div>
@@ -128,10 +128,10 @@
 		<td>{{ cgmod.disp_time_from_ts_ms(cgtxn.sell_time) }}</td>
                 <td>{{ cgtxn.buy_id }}</td>
                 <td>{{ cgmod.disp_time_from_ts_ms(cgtxn.buy_time) }}</td>
-                <td>{{ cgtxn.open_vol / 100000000.0}}</td>
-                <td>{{ cgtxn.vol / 100000000.0}}</td>
-                <td>{{ cgtxn.close_vol / 100000000.0}}</td>
-                <td>{{ cgtxn.gain }}</td>
+                <td>{{ '%.06f' % (cgtxn.open_vol / 100000000.0) }}</td>
+                <td>{{ '%.06f' % (cgtxn.vol / 100000000.0) }}</td>
+                <td>{{ '%.06f' % (cgtxn.close_vol / 100000000.0) }}</td>
+                <td>{{ '%.02f' % (cgtxn.gain) }}</td>
                 <td>{{ cgtxn.stg }} </td>
             </tr>
         {% endfor %}
