@@ -8,7 +8,10 @@
 ##
 
 import demjson, jsonpickle, jinja2, logging, os, time, urllib2, webapp2
+from hashlib import sha256 as hash_func
 from datetime import datetime
+
+from google.appengine.ext import ndb
 
 from google.appengine.api   import urlfetch
 from google.appengine.ext   import ndb
@@ -27,6 +30,14 @@ URL_BUYS = "auth/completeduserbids"
 URL_SELLS = "auth/completeduserasks"
 
 jsonpickle.set_preferred_backend('demjson')
+
+class StatsSummary(ndb.Model):
+    # id = ndb.StringProperty()
+    home         = ndb.IntegerProperty()
+    transactions = ndb.IntegerProperty()
+    cg_actual    = ndb.IntegerProperty()
+    cg_proj      = ndb.IntegerProperty()
+    other        = ndb.IntegerProperty()
 
 class CSError(Exception):
     pass
@@ -75,6 +86,31 @@ class CSHandler(webapp2.RequestHandler):
 
         return ret
 
+    def hash_it (self, s):
+        return hash_func(s).hexdigest()
+
+    def record_stat (self, apikey, action):
+        key = self.hash_it(self.hash_it(apikey)) if apikey else "Empty"
+        acc_key = ndb.Key(StatsSummary, key)
+        acc = acc_key.get()
+
+        if not acc:
+            acc = StatsSummary(id=key, home=0, transactions=0, cg_actual=0,
+                               cg_proj=0, other=0)
+
+        if action == 'home':
+            acc.home += 1
+        elif action == 'transactions':
+            acc.transactions += 1
+        elif action == 'cg-actual':
+            acc.cg_actual += 1
+        elif action == 'cg-proj':
+            acc.cg_proj += 1
+        else:
+            acc.other += 1
+
+        acc.put()
+
 class TradesHandler(CSHandler):
     """
     Fetch the asks and bids using the specified API Key and return it as a
@@ -83,6 +119,7 @@ class TradesHandler(CSHandler):
 
     def get (self):
         apikey = self.request.get('apikey', None)
+        self.record_stat(apikey, 'transactions')
 
         txns  = False
         buys  = []
@@ -115,6 +152,9 @@ class TradesHandler(CSHandler):
 class CGActualHandler(CSHandler):
     def get (self):
         apikey    = self.request.get('apikey', None)
+
+        self.record_stat(apikey, 'cg-actual')
+
         date_from = self.request.get('from', None)
         date_to   = self.request.get('to', None)
         debug     = self.request.get('debug', False)
@@ -178,6 +218,9 @@ class CGProjHandler(CSHandler):
     ## handler. ...
     def get (self):
         apikey = self.request.get('apikey', None)
+
+        self.record_stat(apikey, 'cg-proj')
+
         sell_qty   = long(self.request.get('sell_qty', 0))
         price  = float(self.request.get('sell_price', 0.0))
         sell_price = long(price * 100)  # Paisa
@@ -249,6 +292,8 @@ class CGProjHandler(CSHandler):
 
 class MainPageHandler(CSHandler):
     def get (self):
+        self.record_stat(None, 'home')
+
         template = JENV.get_template('index.html')
         self.response.write(template.render())
 
