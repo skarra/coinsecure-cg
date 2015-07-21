@@ -272,6 +272,7 @@ class CGProjHandler(CSHandler):
         dt = datetime.now()
         to_ts = ts_ms_from_dt(dt)
 
+        ## FIXME: catch CGError that can be thrown
         cgs = p.cg(from_ts, to_ts)
         if p.end_balance < sell_qty:
             error = True
@@ -280,6 +281,7 @@ class CGProjHandler(CSHandler):
                                               p.end_balance / cg.SATOSHIS_F)
         else:
             p.gen_sells(sell_qty, sell_price, to_ts - 1)
+            ## FIXME: catch CGError that can be thrown
             cgs = p.cg(to_ts-2, to_ts)
 
         result = {
