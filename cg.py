@@ -176,11 +176,14 @@ class Portfolio(object):
                     break
             except CGError, e:
                 err    = True
-                errmsg = str(e)
+                raise
 
         ## A quick sanity check
         bal = sum([b.vol for b in self.temp_buys])
-        assert(bal == self.end_balance)
+        if bal != self.end_balance:
+            raise CGError(("Internal Server Error: " +
+                           "Balance (%f) != self.end_balance (%f)"),
+                          bal, self.end_balance)
 
         return {'error' : err,
                 'error_msg' : errmsg,
@@ -230,12 +233,14 @@ class Portfolio(object):
             if end_date > sell.time:
                 self.end_balance -= vol
 
-            assert(sell.vol >= 0)
+            if sell.vol < 0:
+                raise CGError("Unexpectedly negative sell balance")
 
             if sell.vol == 0:
                 return True
 
-        assert(False)                     # We should not run out of buys
+        raise CGError("You are trying to sell more than you have! (%d, %d)" % (
+                      self.end_balance, sell.vol))
 
     def gen_sells (self, vol, price, ts):
         """Add a single Sell transaction for specified vol and price. Useful

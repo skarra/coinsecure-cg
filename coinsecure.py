@@ -198,7 +198,13 @@ class CGActualHandler(CSHandler):
         dt = datetime.strptime(date_to, "%Y-%m-%d")
         to_ts = ts_ms_from_dt(dt) + cg.ONEDAY
 
-        cgs = p.cg(from_ts, to_ts)
+        cgs = None
+        try:
+            cgs = p.cg(from_ts, to_ts)
+        except cg.CGError, e:
+            error = True
+            errmsg = str(e)
+
         result = {
             'cgs' : cgs,
             'cgmod' : cg,
