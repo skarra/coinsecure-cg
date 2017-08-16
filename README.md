@@ -1,1 +1,1 @@
-Go to: http://coinsecure.appspot.com for more info
+Go to: http://coinsecurecg.appspot.com for more info
